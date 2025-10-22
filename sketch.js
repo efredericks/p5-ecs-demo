@@ -87,7 +87,7 @@ function draw() {
 }
 
 // utility function for drawing a single sprite from the spritesheet - assumes using the 'packed' version (no spaces/gutters)
-function drawImage(sprite_id, x, y) {
+function drawSprite(sprite_id, x, y) {
   image(
     spritesheet,
     x,

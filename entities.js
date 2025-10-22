@@ -23,7 +23,7 @@ class Entity {
   }
 
   draw() {
-    drawImage(this.sprite, this.x, this.y);
+    drawSprite(this.sprite, this.x, this.y);
 
     // draw HP bar
     if ("fighter" in this.components) {
