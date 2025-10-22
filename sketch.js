@@ -1,11 +1,16 @@
 // Erik Fredericks
 // ECS tutorial for GVSU Computing Club, 2025
+// Part 1 (First steps)
 
-const sprite_scale = 4;
-const SPRITE_SIZE = 8;
-const sprite_bg = "#222323";
-let SPRITE_SCALED;
 let spritesheet;
+let player;
+let entities = [];
+
+const sprite_bg = "#222323";
+
+const SPRITE_SIZE = 8; // size of sprite in spritesheet
+const SPRITE_SCALE = 4; // amount to scale base sprite
+let SPRITE_SCALED = 1; // calculated scale value
 
 let sprite_dict = {
   player: { r: 0, c: 4 },
@@ -14,24 +19,18 @@ let sprite_dict = {
   snake: { r: 1, c: 4 },
 };
 
-let player;
-let entities = [];
-
-// runs once, prior to drawing
 async function setup() {
-  createCanvas(800, 600);
-  drawingContext.imageSmoothingEnabled = false;
+  // load in sprite sheet - change the filename to match your file
   spritesheet = await loadImage("assets/colored_tilemap_packed.png");
+  createCanvas(400, 400);
+  drawingContext.imageSmoothingEnabled = false;
 
-  // actual drawing size
-  SPRITE_SCALED = sprite_scale * SPRITE_SIZE;
+  SPRITE_SCALED = SPRITE_SCALE * SPRITE_SIZE;
 
-  // create player 
   player = new Player(80, 80, SPRITE_SCALED, SPRITE_SCALED);
-  player.addComponent(new FighterComponent(10, 1, 1));
-  entities.push(player);
+  entities.push(player); // player is always our 0-th entity
 
-  // create other entities
+  // create a few monsters
   choices = ["npc", "snake", "beholder"];
   for (let _ = 0; _ < 10; _++) {
     let e = new Enemy(
@@ -42,33 +41,23 @@ async function setup() {
       SPRITE_SCALED,
       random(1.0, 5.0)
     );
-    e.addComponent(new FighterComponent(10, 1, 1));
-    e.addComponent(new AIComponent('random', e));
-
-    // console.log(e)
     entities.push(e);
   }
 
-  let d = new Enemy("beholder", width / 2, height / 2, SPRITE_SCALED, SPRITE_SCALED, 2.0);
-  d.addComponent(new FighterComponent(10, 1, 1));
-  d.addComponent(new AIComponent('DVD', d, 1, 1));
+  let d = new DVD("beholder", width / 2, height / 2, SPRITE_SCALED, SPRITE_SCALED, 2.0);
   entities.push(d);
 
-  let f = new Enemy("snake", 40, 40, SPRITE_SCALED, SPRITE_SCALED, 2.0);
-  f.addComponent(new FighterComponent(10, 1, 1));
-  f.addComponent(new AIComponent('follow', f, 1, 1, player));
+  let f = new Follower("snake", 20, 20, SPRITE_SCALED, SPRITE_SCALED, 1.0, player);
   entities.push(f);
-  
-  // console.log(entities)
 }
 
-// forever loop
 function draw() {
   background(sprite_bg);
+  // image(spritesheet, 0, 0);
 
-  for (let i = entities.length - 1; i >= 0; i--) {
-    entities[i].update();
-    entities[i].draw();
+  for (let e of entities) {
+    e.update();
+    e.draw();
   }
 
   // enable continuous movement
@@ -86,22 +75,18 @@ function draw() {
   }
 }
 
-// utility function for drawing a single sprite from the spritesheet - assumes using the 'packed' version (no spaces/gutters)
-function drawImage(sprite_id, x, y) {
+// utility function for drawing a single sprite from the spritesheet 
+// note: assumes using the 'packed' version (no spaces/gutters)
+function drawSprite(sprite_id, x, y) {
   image(
-    spritesheet,
-    x,
-    y,
-    SPRITE_SCALED,
-    SPRITE_SCALED,
-    sprite_dict[sprite_id].c * SPRITE_SIZE,
-    sprite_dict[sprite_id].r * SPRITE_SIZE,
-    SPRITE_SIZE,
-    SPRITE_SIZE
+    spritesheet,   // spritesheet object
+    x,             // x location to draw on screen
+    y,             // y location to draw on screen
+    SPRITE_SCALED, // the **new** width of the sprite
+    SPRITE_SCALED, // the **new** height of the sprite
+    sprite_dict[sprite_id].c * SPRITE_SIZE, // its x location in the spritesheet
+    sprite_dict[sprite_id].r * SPRITE_SIZE, // its y location in the spritesheet
+    SPRITE_SIZE,   // the **original** width of the sprite
+    SPRITE_SIZE    // the **original** height of the sprite
   );
-}
-
-function keyPressed() {
-  if (key == '1') player.takeDamage(1);
-  if (key == '2') player.takeDamage(-1);
 }
