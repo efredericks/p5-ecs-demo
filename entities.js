@@ -1,4 +1,3 @@
-// entity base class
 class Entity {
   constructor(sprite, x, y, w, h) {
     this.sprite = sprite;
@@ -7,9 +6,12 @@ class Entity {
     this.w = w;
     this.h = h;
 
-    this.bar_h = this.h * 0.2;
-
+    this.bar_h = this.h * 0.2; // height of the HP bar
     this.components = {};
+  }
+
+  addComponent(c) {
+    this.components[c.key] = c;
   }
 
   update() {
@@ -18,12 +20,8 @@ class Entity {
     }
   }
 
-  addComponent(c) {
-    this.components[c.key] = c;
-  }
-
   draw() {
-    drawImage(this.sprite, this.x, this.y);
+    drawSprite(this.sprite, this.x, this.y);
 
     // draw HP bar
     if ("fighter" in this.components) {
@@ -48,13 +46,14 @@ class Entity {
   }
 }
 
-// an entity that can move around
+// an entity that can move
 class MoveableEntity extends Entity {
   constructor(sprite, x, y, w, h, speed = 1.0) {
     super(sprite, x, y, w, h);
     this.speed = speed;
   }
 
+  // make sure the move is valid before doing it!
   tryMove(move) {
     if (
       this.x + move.x < 0 ||
@@ -67,20 +66,15 @@ class MoveableEntity extends Entity {
   }
 }
 
-// an enemy - the intention would be there is more
-// delineation here between a moveable and this
-class Enemy extends MoveableEntity {
-  constructor(sprite, x, y, w, h, speed) {
-    super(sprite, x, y, w, h, speed);
-  }
-}
-
-// the player class
+// Our player class - this is a bit special as we'll do some one-off
+// coding in here.  
 class Player extends MoveableEntity {
   constructor(x, y, w, h) {
+    // fyi, this magic number should be defined in a lookup table!
     super("player", x, y, w, h, 12.0);
   }
 
+  // handle player movement
   move(dir) {
     let next_move = { x: this.x, y: this.y };
     if (dir == "up") next_move.y -= this.speed;
@@ -96,5 +90,12 @@ class Player extends MoveableEntity {
 
     this.x = constrain(this.x, 0, width - this.w);
     this.y = constrain(this.y, 0, height - this.h);
+  }
+}
+
+// temporary entities - we'll modify/delete them later!
+class Enemy extends MoveableEntity {
+  constructor(sprite, x, y, w, h, speed) {
+    super(sprite, x, y, w, h, speed);
   }
 }

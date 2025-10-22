@@ -4,6 +4,37 @@ class Component {
   }
 }
 
+class FighterComponent extends Component {
+  constructor(hp, def, str) {
+    super('fighter');
+    this.hp = hp;
+    this.maxHP = hp;
+    this.def = def;
+    this.maxDef = def;
+    this.str = str;
+  }
+
+  // returns the percentage of health remaining
+  getPerc() {
+    return this.hp / this.maxHP;
+  }
+
+  // damage the entity 
+  takeDamage(dmg) {
+    this.hp -= dmg;
+
+    if (this.hp <= 0) {
+      this.hp = 0;
+      this.die();
+    }
+  }
+
+  // handle death - can delegate to the entity or handle here
+  die() {
+    console.log("oof");
+  }
+}
+
 class AIComponent extends Component {
   constructor(type, entity, vx = 0, vy = 0, target = null) {
     super("AI");
@@ -29,6 +60,7 @@ class AIComponent extends Component {
           this.entity.y = next_move.y;
         }
       }
+
       // bouncing dvd logo
     } else if (this.type == "DVD") {
       let next_move = {
@@ -70,32 +102,5 @@ class AIComponent extends Component {
     // stay in bounds
     this.entity.x = constrain(this.entity.x, 0, width - this.entity.w);
     this.entity.y = constrain(this.entity.y, 0, height - this.entity.h);
-  }
-}
-class FighterComponent extends Component {
-  constructor(hp, def, str) {
-    super("fighter");
-    this.hp = hp;
-    this.maxHP = hp;
-    this.def = def;
-    this.maxDef = def;
-    this.str = str;
-  }
-
-  getPerc() {
-    return this.hp / this.maxHP;
-  }
-
-  takeDamage(dmg) {
-    this.hp -= dmg;
-
-    if (this.hp <= 0) {
-      this.hp = 0;
-      this.die();
-    }
-  }
-
-  die() {
-    console.log("oof");
   }
 }
